@@ -3,6 +3,71 @@ import Numeric
 import Data.List
 import System.Random
 
+-- | Data type specifying the parameters and Q table for a particular Q learner. qAlpha is the learning
+-- rate associated with each iterative update. qGamma is the discount rate on rewards. qGrid is a matrix
+-- (dimension number of states by number of actions) that specifies the Q(s,a) function learned by this
+-- Q learner. qEpsilon is a function that maps from the number of iterations left to epsilon for the epsilon
+-- greedy strategy (can return 1 uniformly if an epsilon greedy strategy is not wanted).
+data QLearner = QLearner {qAlpha::Double, qGamma::Double, qEpsilon::(Int -> Double), 
+                          qGrid::V.Vector (V.Vector Double)} 
+
+-- |Wrapper around Int, specifying a state index.
+data State = State {getStateValue::Int}
+
+-- |Wrapper around Int, specifying an action index.
+
+data Action = Action {getActionValue::Int} -- |Wrapper around Double, specifying a reward.
+data Reward = Reward {getRewardValue::Double}
+
+-- |Data type specifying the environment in which the Q learner operates. envExecute is the function
+-- used to execute actions at a particular state, returning the new state and the award associated with
+-- the state, action pair. envPossible returns the actions possible at any given
+-- state.
+data Environment = Environment {envExecute::(State -> Action -> (State, Reward)), 
+                                envPossible::(State -> [Action])}  
+
+
+-- |Given alpha, gamma, the number of states and the maximum number of actions possible at any state, 
+-- returns a QLearner initialized with a zero Q-table. 
+initQLearner :: Double -> Double -> (Int -> Double) -> Int -> Int -> QLearner
+initQLearner alpha gamma epsilon numStates numActions = 
+  QLearner alpha gamma epsilon $ createZeroQ numStates numActions
+
+-- |Given the envExecute and envPossible functions, constructs an Environment. This is purely for
+-- for uniformity of the API. You are welcome to use the data type constructor "Environment" since
+-- they are equivalent.
+initEnvironment :: (State -> Action -> (State, Reward)) -> (State -> [Action]) -> Environment
+initEnvironment execute possible = Environment execute possible    
+
+unwrapExecute :: (State -> Action -> (State, Reward)) -> Int -> Int -> (Int, Double)
+unwrapExecute execute state action = let execRet = execute (State state) (Action action)
+                                     in (getStateValue $ fst execRet, getRewardValue $ snd execRet)
+
+unwrapPossible :: (State -> [Action]) -> Int -> [Int] 
+unwrapPossible possible state = let possibRet = possible (State state)
+                                in map (\x -> getActionValue x) possibRet 
+   
+-- |Given an Environment, a Q learner and the state the Q Learner is on, returns the Q Learner with an updated Q table
+-- and the new state of the Q learner within the Environment. Also takes the number of time steps left for the epsilon 
+-- computation.
+moveLearner :: Int -> StdGen -> Environment -> QLearner -> State -> ((QLearner, State), StdGen)
+moveLearner times g (Environment execute' possible') (QLearner alpha gamma epsilon qtable) (State s) =
+  let epRet = checkEpsilon g epsilon times
+      execute = unwrapExecute execute'
+      possible = unwrapPossible possible'
+      doRandom = fst $ epRet
+      g' = snd $ epRet in
+      if doRandom then let randRet = qRandomIter g execute possible s qtable
+                           iter = fst randRet
+                           g'' = snd randRet
+                           qtable' = fst iter
+                           state' = snd iter in
+                           ((QLearner alpha gamma epsilon qtable', State state'), g'')  
+                  else let iter = qLearnIter execute possible s qtable
+                           qtable' = fst iter
+                           state' = snd iter in
+                           ((QLearner alpha gamma epsilon qtable', State state'), g') 
+  
 -- |Returns the maximum number of characters needed to "show" an element from the given vector.
 maxSpaceRow :: V.Vector Double -> Int
 maxSpaceRow vec = if V.null vec 
