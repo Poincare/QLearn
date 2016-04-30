@@ -205,16 +205,16 @@ qEpsilonPrint g epsilon grid times s q = do
           let g'' = snd randomRet
           let qgrid = fst $ iter
           let state = snd $ iter
-          -- putStrLn $ prettyPrintQ $ qgrid
+          putStrLn $ prettyPrintQ $ qgrid
           putStrLn $ (++) "State: " $ show $ state
-          qEpsilonPrint g'' epsilon grid (times - 1) s qgrid
+          qEpsilonPrint g'' epsilon grid (times - 1) state qgrid
         else do
           putStrLn "Doing a normal action"
           putStrLn $ (++) "Original state: " $ show $ s
           let iter = qLearnIter (executeOnGrid grid) (gridPossible grid) s q 
           let qgrid = fst $ iter
           let state = snd $ iter
-          --putStrLn $ prettyPrintQ $ qgrid 
+          putStrLn $ prettyPrintQ $ qgrid 
           putStrLn $ (++) "State: " $ show $ state
           qEpsilonPrint g' epsilon grid (times - 1) state qgrid
 
