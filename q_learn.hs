@@ -1,3 +1,14 @@
+module QLearn 
+( QLearner
+, State
+, Action
+, Reward
+, Environment
+, initQLearner
+, initEnvironment
+, moveLearner
+, moveLearnerAndPrint
+) where
 import qualified Data.Vector as V
 import Numeric
 import Data.List
@@ -12,11 +23,12 @@ data QLearner = QLearner {qAlpha::Double, qGamma::Double, qEpsilon::(Int -> Doub
                           qGrid::V.Vector (V.Vector Double)} 
 
 -- |Wrapper around Int, specifying a state index.
-data State = State {getStateValue::Int}
+data State = State {getStateValue::Int} | Stop deriving (Show) 
 
 -- |Wrapper around Int, specifying an action index.
-
 data Action = Action {getActionValue::Int} -- |Wrapper around Double, specifying a reward.
+
+-- |Wrapper around Double, specifying a reward value.
 data Reward = Reward {getRewardValue::Double}
 
 -- |Data type specifying the environment in which the Q learner operates. envExecute is the function
@@ -51,6 +63,7 @@ unwrapPossible possible state = let possibRet = possible (State state)
 -- and the new state of the Q learner within the Environment. Also takes the number of time steps left for the epsilon 
 -- computation.
 moveLearner :: Int -> StdGen -> Environment -> QLearner -> State -> ((QLearner, State), StdGen)
+moveLearner times g env qlearner Stop = ((qlearner, Stop), g)  
 moveLearner times g (Environment execute' possible') (QLearner alpha gamma epsilon qtable) (State s) =
   let epRet = checkEpsilon g epsilon times
       execute = unwrapExecute execute'
@@ -67,7 +80,33 @@ moveLearner times g (Environment execute' possible') (QLearner alpha gamma epsil
                            qtable' = fst iter
                            state' = snd iter in
                            ((QLearner alpha gamma epsilon qtable', State state'), g') 
-  
+
+-- |Same thing as "moveLearner" but prints out the Q table and the current state after moving the QLearner.
+moveLearnerAndPrint :: Int -> StdGen -> Environment -> QLearner -> State -> IO ((QLearner, State), StdGen)
+moveLearnerAndPrint times g env qlearner Stop = do 
+  putStrLn "Stop state." 
+  return ((qlearner, Stop), g)
+moveLearnerAndPrint times g env qlearner state = do
+  let iter = moveLearner times g env qlearner state
+      g' = snd iter
+      qlearner' = fst $ fst iter    
+      state' = snd $ fst iter
+  putStrLn $ (++) "Reached: " $ show state'      
+  putStrLn $ prettyPrintQ $ qGrid qlearner'
+  return ((qlearner', state'), g') 
+
+-- |Repeatedly moves (i.e. moves the given number of times) the qLearner and prints the Q table 
+-- at every move until a stop state is encountered.
+moveLearnerPrintRepeat :: Int -> StdGen -> Environment -> QLearner -> State -> IO ()
+moveLearnerPrintRepeat _ _ _ _ Stop = putStrLn "Stopped repeating due to stop state."
+moveLearnerPrintRepeat 0 g env qlearner state = putStrLn "Done." 
+moveLearnerPrintRepeat numTimes g env qlearner state = do
+  moveRet <- moveLearnerAndPrint numTimes g env qlearner state  
+  let g' = snd moveRet
+      qlearner' = fst $ fst moveRet
+      state' = snd $ fst moveRet
+  moveLearnerPrintRepeat (numTimes - 1) g' env qlearner state 
+
 -- |Returns the maximum number of characters needed to "show" an element from the given vector.
 maxSpaceRow :: V.Vector Double -> Int
 maxSpaceRow vec = if V.null vec 
@@ -286,8 +325,3 @@ qEpsilonPrint g epsilon grid times s q = do
 epsilon :: Int -> Int -> Double 
 -- epsilon totalTimes timesLeft = 1.0/(fromIntegral $ (totalTimes - timesLeft))
 epsilon totalTimes timesLeft = 1 
-
-main = do
-  g <- getStdGen 
-  let totalTimes = 500 
-  qEpsilonPrint g (epsilon totalTimes) testGrid totalTimes 0 $ createZeroQ 16 4  
