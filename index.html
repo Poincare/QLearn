@@ -1,6 +1,10 @@
 <html>
   <head>
     <link rel="stylesheet" href="assets/foundation-6/css/foundation.min.css"></link>  
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700,900,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="index.css"></link>
   </head>
 
@@ -11,7 +15,11 @@
         <h1>QLearn</h1>
         </div>
         <div class="nav_link">
-          <a href="#">Introduction</a>
+          <a href="#introduction">Introduction</a>
+        </div>
+
+        <div class="nav_link">
+          <a href="#example">Example</a>
         </div>
 
         <div class="nav_link">
@@ -20,30 +28,51 @@
         <div class="nav_link">
           <a href="#">Source</a>
         </div>
-        <div class="nav_link">
-          <a href="#">Examples</a>
+
+        <div class="nav_link cabal">
+          <a href="#">Cabal</a>
         </div>
 
       </div>
       <div class="small-10 columns docs">
         <div>
-          <h5 class="para_heading">1. Introduction</h5>
+          <h5 id="introduction" class="para_heading">1. Introduction</h5>
           <h4>QLearn: A Haskell library for iterative Q-learning.</h4>
           <p>Reinforcement learning is a quickly growing field that's centered around teaching agents how to operate optimally in environments with states, actions and rewards associated with state and action pairs. QLearn is a library that allows you to easily implement Q-learning-based agents in Haskell. You can get it through Cabal: </p>
           <code class="mono">cabal install qlearn</code> 
           <p>You can include it in your code with:</p>
           <code class"mono">import Data.QLearn</code>
-          <p>There are lots of <a href="http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf">good explanations of Q-learning</a> so we won't go into much detail about the technique here. Basically, we have an agent that's moving around in an environment where the agent can end up in particular states and transition between these states using actions. Each state and action pair has a reward associated with it. The agent doesn't know exactly how the state and action pairs turn into new states and also doesn't know how much of a reward each state and action pair gives. It does, however, know which state it is in at a a given time. Given this information, the Q-learning algorithm tries to have the robot figure out the optimal strategy. There are two numerical parameters we can control: alpha and gamma and both have values between 0 and 1. The former represents how much new observations should affect our current understanding of the environment in comparison to old observations in terms of learning (i.e. a learning rate) and the latter describes how much rewards in the future should be discounted. In addition to these, there's also an epsilon function. If our agent were to just always follow the policy it has "learned" right from the start, it might get stuck on some really bad policy. So, we want to sometimes take a random action. Given the number of time steps remaining, the epsilon function returns the probability of taking this random action.</p> 
+          <p>There are lots of <a href="http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf">good explanations of Q-learning</a> so we won't go into much detail about the technique here. Basically, we have an agent that's moving around in an environment where the agent can end up in particular states and transition between these states using actions. Each state and action pair has a reward associated with it. The agent doesn't know exactly how the state and action pairs turn into new states and also doesn't know how much of a reward each state and action pair gives. It does, however, know which state it is in at a a given time. Given this information, the Q-learning algorithm tries to have the robot figure out the optimal strategy. </p>
+          <p> There are two numerical parameters we can control: alpha and gamma and both have values between 0 and 1. The former represents how much new observations should affect our current understanding of the environment in comparison to old observations in terms of learning (i.e. a learning rate) and the latter describes how much rewards in the future should be discounted. In addition to these, there's also an epsilon function. If our agent were to just always follow the policy it has "learned" right from the start, it might get stuck on some really bad policy. So, we want to sometimes take a random action. Given the number of time steps remaining, the epsilon function returns the probability of taking this random action.</p> 
         </div>
 
         <div class="section">
-          <h5 class="para_heading">2. Example</h5>
-          <p>QLearn is incredibly easy to use. There's only a little bit of setup needed to create an agent and an environment for the agent to operate in. With these parameters in place, we have the following code:
-          <code>
+          <h5 id="example" class="para_heading">2. Example</h5>
+          <p>QLearn is incredibly easy to use. There's only a little bit of setup needed to create an agent and an environment for the agent to operate in. For a simple agent moving about on a grid, we have the following code:
+          <pre>
+<code class="haskell">
+import QLearn
+import System.Random
 
-          </code>
+main = do
+  let alpha = 0.4 
+      gamma = 1
+      totalTime = 1000
+      numStates = 16 -- we are operating in a 4x4 grid 
+      numActions = 4 -- up, down, left and right
+      epsilon = (\timeRemaining -> 1.0/(fromIntegral $ totalTime - timeRemaining))
+      execute = executeGrid testGrid 
+      possible = possibleGrid testGrid
+      qLearner = initQLearner alpha gamma epsilon numStates numActions 
+      environment = initEnvironment execute possible
+  g <- newStdGen 
+  moveLearnerPrintRepeat totalTime g environment qLearner (State 0)
+      </code>
+          </pre>
+          <p> Notice that we're using the <code class="inline">testGrid</code>, which is a 4x4 multidimensional array of doubles with each point within the grid representing a state and the value of each point representing the reward associated with the state. All actions are deterministic within this grid. We're able to get the state transition behavior using <code class="inline">executeGrid</code> and <code class="inline">possibleGrid</code> from QLearn. If you run the code snippet, you should see the value table for the agent update as it performs 1000 iterations on the grid. </p>
         </div>
       </div>
+
     </div>
   </body>
 </html>
