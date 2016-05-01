@@ -5,8 +5,8 @@
   </head>
 
   <body>
-    <div class="small-12 columns">
-      <div class="small-3 columns">
+    <div class="row small-12 columns">
+      <div class="small-2 columns">
         <div class="logo">
         <h1>QLearn</h1>
         </div>
@@ -25,13 +25,24 @@
         </div>
 
       </div>
-      <div class="small-9 columns docs">
-        <h5 class="para_heading">Introduction</h5>
-        <h4>QLearn: A Haskell library for iterative Q-learning.</h4>
-        <p>Reinforcement learning is a quickly growing field that's centered around teaching agents how to operate optimally in environments with states, actions and rewards associated with state and action pairs. QLearn is a library that allows you to easily implement Q-learning-based agents in Haskell. You can get it through Cabal: </p>
-        <code class="mono">cabal install qlearn</code> 
-        <p>You can include it in your code with:</p>
-        <code class"mono">import Data.QLearn</code>
+      <div class="small-10 columns docs">
+        <div>
+          <h5 class="para_heading">1. Introduction</h5>
+          <h4>QLearn: A Haskell library for iterative Q-learning.</h4>
+          <p>Reinforcement learning is a quickly growing field that's centered around teaching agents how to operate optimally in environments with states, actions and rewards associated with state and action pairs. QLearn is a library that allows you to easily implement Q-learning-based agents in Haskell. You can get it through Cabal: </p>
+          <code class="mono">cabal install qlearn</code> 
+          <p>You can include it in your code with:</p>
+          <code class"mono">import Data.QLearn</code>
+          <p>There are lots of <a href="http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf">good explanations of Q-learning</a> so we won't go into much detail about the technique here. Basically, we have an agent that's moving around in an environment where the agent can end up in particular states and transition between these states using actions. Each state and action pair has a reward associated with it. The agent doesn't know exactly how the state and action pairs turn into new states and also doesn't know how much of a reward each state and action pair gives. It does, however, know which state it is in at a a given time. Given this information, the Q-learning algorithm tries to have the robot figure out the optimal strategy. There are two numerical parameters we can control: alpha and gamma and both have values between 0 and 1. The former represents how much new observations should affect our current understanding of the environment in comparison to old observations in terms of learning (i.e. a learning rate) and the latter describes how much rewards in the future should be discounted. In addition to these, there's also an epsilon function. If our agent were to just always follow the policy it has "learned" right from the start, it might get stuck on some really bad policy. So, we want to sometimes take a random action. Given the number of time steps remaining, the epsilon function returns the probability of taking this random action.</p> 
+        </div>
+
+        <div class="section">
+          <h5 class="para_heading">2. Example</h5>
+          <p>QLearn is incredibly easy to use. There's only a little bit of setup needed to create an agent and an environment for the agent to operate in. With these parameters in place, we have the following code:
+          <code>
+
+          </code>
+        </div>
       </div>
     </div>
   </body>
