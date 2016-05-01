@@ -1,4 +1,4 @@
-import QLearn
+import Data.QLearn
 import System.Random
 import qualified Data.Vector as V
 
