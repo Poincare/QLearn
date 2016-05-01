@@ -26,11 +26,11 @@
           <a href="#">Documentation</a>
         </div>
         <div class="nav_link">
-          <a href="#">Source</a>
+          <a href="https://github.com/Poincare/QLearn">Source</a>
         </div>
 
         <div class="nav_link cabal">
-          <a href="#">Cabal</a>
+          <a href="https://hackage.haskell.org/package/QLearn">Hackage</a>
         </div>
 
       </div>
@@ -42,8 +42,8 @@
           <code class="mono">cabal install qlearn</code> 
           <p>You can include it in your code with:</p>
           <code class"mono">import Data.QLearn</code>
-          <p>There are lots of <a href="http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf">good explanations of Q-learning</a> so we won't go into much detail about the technique here. Basically, we have an agent that's moving around in an environment where the agent can end up in particular states and transition between these states using actions. Each state and action pair has a reward associated with it. The agent doesn't know exactly how the state and action pairs turn into new states and also doesn't know how much of a reward each state and action pair gives. It does, however, know which state it is in at a a given time. Given this information, the Q-learning algorithm tries to have the robot figure out the optimal strategy. </p>
-          <p> There are two numerical parameters we can control: alpha and gamma and both have values between 0 and 1. The former represents how much new observations should affect our current understanding of the environment in comparison to old observations in terms of learning (i.e. a learning rate) and the latter describes how much rewards in the future should be discounted. In addition to these, there's also an epsilon function. If our agent were to just always follow the policy it has "learned" right from the start, it might get stuck on some really bad policy. So, we want to sometimes take a random action. Given the number of time steps remaining, the epsilon function returns the probability of taking this random action.</p> 
+          <p>There are lots of <a href="http://www.gatsby.ucl.ac.uk/~dayan/papers/cjch.pdf">good explanations of Q-learning</a> so we won't go into much detail about the technique here. Basically, we have an agent that's moving around in an environment where the agent can end up in particular states and transition between these states using actions. Each state and action pair has a reward associated with it. The agent doesn't know exactly how the state and action pairs turn into new states and also doesn't know how much of a reward each state and action pair gives. It does, however, know which state it is in at a a given time. Given this information, the Q-learning algorithm tries to have the agent figure out the optimal strategy. </p>
+          <p> There are two numerical parameters we can control: alpha and gamma. Both have values between 0 and 1. The former represents how much new observations should affect our current understanding of the environment in comparison to old observations in terms of learning (i.e. a learning rate) and the latter describes how much rewards in the future should be discounted. In addition to these, there's also an epsilon function. If our agent were to just always follow the policy it has "learned" right from the start, it might get stuck on some really bad policy. So, we want to sometimes take a random action. Given the number of time steps remaining, the epsilon function returns the probability of taking this random action.</p> 
         </div>
 
         <div class="section">
