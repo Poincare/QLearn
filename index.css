@@ -64,3 +64,8 @@ a {
 pre code {
   font-size: 14px;
 }
+
+pre > code {
+  display: block; 
+}
+}
